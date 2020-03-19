@@ -20,8 +20,7 @@ class Backend(BaseBackend):
                 expires_in=self.UPLOAD_URL_TIMEOUT,
                 method='PUT',
                 bucket=bucket_name,
-                key=key_name,
-                headers={'Content-Length': '5242880', 'Content-Type': content_type}
+                key=key_name
             )
             return upload_url
         except Exception as ex:
