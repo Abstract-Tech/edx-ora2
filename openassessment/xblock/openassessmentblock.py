@@ -633,12 +633,16 @@ class OpenAssessmentBlock(
                 leaderboard_model = model
 
         # All data we intend to pass to the front end.
+        show_staff_area = self.is_course_staff and not self.in_studio_preview
+        block_user = self.runtime.service(self, "user").get_current_user()
+        is_limited_staff = show_staff_area and not and not has_studio_read_access(block_user,self.course_id)
         context_dict = {
             "leaderboard_modal": leaderboard_model,
             "prompts": self.prompts,
             "prompts_type": self.prompts_type,
             "rubric_assessments": ui_models,
-            "show_staff_area": self.is_course_staff and not self.in_studio_preview,
+            "show_staff_area": show_staff_area,
+            "is_limited_staff": is_limited_staff,
             "title": self.title,
             "xblock_id": self.get_xblock_id(),
             "course_id": self.course_id,
