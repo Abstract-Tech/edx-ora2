@@ -9,6 +9,10 @@ from webob import Response
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import User
+from common.djangoapps.student.auth import has_studio_read_access
+from opaque_keys.edx.keys import CourseKey
+
 from xblock.core import XBlock
 from submissions.errors import SubmissionNotFoundError
 from openassessment.assessment.errors import PeerAssessmentInternalError
@@ -158,6 +162,12 @@ class StaffAreaMixin:
         context['is_team_assignment'] = self.is_team_assignment()
 
         context['xblock_id'] = self.get_xblock_id()
+        show_staff_area = self.is_course_staff and not self.in_studio_preview
+        block_user = self.runtime.service(self, "user").get_current_user()
+        user = User.objects.get(email=block_user.emails[0])
+        is_limited_staff = show_staff_area and not has_studio_read_access(user,CourseKey.from_string(self.course_id))
+        context['is_limited_staff'] = is_limited_staff
+        
 
         # Add studio URL to link to edit view. We actually want to direct to the vertical instead of the ORA like below:
         # http://<studio-url>/container/block-v1:<course-id>+type@vertical+block@<block-id>

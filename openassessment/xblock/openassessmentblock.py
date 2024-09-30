@@ -12,6 +12,7 @@ import pytz
 
 from django.conf import settings
 from django.template.loader import get_template
+from django.contrib.auth.models import User
 
 from bleach.sanitizer import Cleaner
 from lazy import lazy
@@ -19,6 +20,8 @@ from webob import Response
 from xblock.core import XBlock
 from xblock.exceptions import NoSuchServiceError
 from xblock.fields import Boolean, Integer, List, Scope, String
+from common.djangoapps.student.auth import has_studio_read_access
+from opaque_keys.edx.keys import CourseKey
 
 from openassessment.staffgrader.staff_grader_mixin import StaffGraderMixin
 from openassessment.workflow.errors import AssessmentWorkflowError
@@ -546,12 +549,19 @@ class OpenAssessmentBlock(
 
         ui_models = self._create_ui_models()
         # All data we intend to pass to the front end.
+        show_staff_area = self.is_course_staff and not self.in_studio_preview
+        block_user = self.runtime.service(self, "user").get_current_user()
+        user = User.objects.get(email=block_user.emails[0])
+        is_limited_staff = show_staff_area and not has_studio_read_access(user,CourseKey.from_string(self.course_id))
+        print("is_limited_staff 124",is_limited_staff)
+        print("show_staff_area 124",show_staff_area)
         context_dict = {
             "title": self.title,
             "prompts": self.prompts,
             "prompts_type": self.prompts_type,
             "rubric_assessments": ui_models,
-            "show_staff_area": self.is_course_staff and not self.in_studio_preview,
+            "show_staff_area": show_staff_area,
+            "is_limited_staff":is_limited_staff
         }
         template = get_template("openassessmentblock/oa_base.html")
         return self._create_fragment(template, context_dict, initialize_js_func='OpenAssessmentBlock')
