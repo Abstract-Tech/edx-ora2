@@ -690,13 +690,20 @@ class OraAggregateData:
 
             problem_name = block_display_names_map.get(student_item['item_id'])
 
+            student_id = student_item['student_id']
+            user_data = map_anonymized_ids_to_user_data({student_id})
+            username = user_data.get(student_id, {}).get('username', '')
+            email = user_data.get(student_id, {}).get('email', '')
+
             row = [
+                username,
+                email,
                 submission['uuid'],
                 student_item['item_id'],
                 problem_name,
                 submission['student_item'],
             ] + row_username_cell + [
-                student_item['student_id'],
+                student_id,
                 submission['submitted_at'],
                 #  Dumping required to render special characters in CSV
                 json.dumps(submission['answer'], ensure_ascii=False),
@@ -717,6 +724,8 @@ class OraAggregateData:
         )
 
         header = [
+            'Username',
+            'Email'
             'Submission ID',
             'Location',
             'Problem Name',
@@ -824,9 +833,16 @@ class OraAggregateData:
                 final_grade_points_earned = ''
                 final_grade_points_possible = ''
 
+            student_id = submission_dict['student_item']['student_id']
+            user_data = map_anonymized_ids_to_user_data({student_id})
+            username = user_data.get(student_id, {}).get('username', '')
+            email = user_data.get(student_id, {}).get('email', '')
+
             row = [
+                username,
+                email,
                 aw.item_id,
-                submission_dict['student_item']['student_id'],
+                student_id,
                 aw.status,
             ] + steps_statuses + [
                 peers_graded,
@@ -847,6 +863,8 @@ class OraAggregateData:
         ))
 
         header = [
+            'Username',
+            'Email'
             'block_name',
             'student_id',
             'status',
