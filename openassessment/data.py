@@ -725,7 +725,7 @@ class OraAggregateData:
 
         header = [
             'Username',
-            'Email'
+            'Email',
             'Submission ID',
             'Location',
             'Problem Name',
@@ -864,7 +864,7 @@ class OraAggregateData:
 
         header = [
             'Username',
-            'Email'
+            'Email',
             'block_name',
             'student_id',
             'status',
